@@ -1,0 +1,244 @@
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #2a97aa;
+    margin: 20px;
+  }
+
+  #container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  #input,
+  #barang,
+  #tas,
+  #tas_item {
+    background-color: hsl(0, 0%, 100%);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+
+  form {
+    margin-bottom: 10px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  table,
+  th,
+  td {
+    border: 1px solid #ddd;
+  }
+
+  th,
+  td {
+    padding: 10px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  button {
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #2a97aa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+  }
+
+  button:hover {
+    background-color: #2a97aa;
+  }
+</style>
+
+<div id="container">
+  <div id="input">
+    <form name='frm'>
+      <label for="id">Id</label> <input type="text" name="id"><br>
+      <label for="nama">Nama</label> <input type="text" name="nama"><br>
+      <label for="harga">Harga</label> <input type="text" name="harga"><br>
+      <label for="banyak">Banyak</label> <input type="text" name="banyak"><br>
+    </form>
+    <button onclick="tambahBarang()">Tambah Barang</button>
+  </div>
+
+  <div id="barang"></div>
+</div>
+
+<div id="tas">
+  <button onclick="buatTasBaru()">Buat Tas Baru</button>
+  <button onclick="cetak()">Cetak</button><br>
+  <button onclick="editBarang()"> Edit Barang </button>
+  <div id="tas_info"></div>
+</div>
+
+<div id="tas_item"></div>
+
+<script type="text/javascript">
+
+  barang = [
+    { id: 1, nama: 'Coklat', harga: 15000, banyak: 2 },
+    { id: 2, nama: 'Biskuit', harga: 20000, banyak: 3 },
+    { id: 3, nama: 'Permen', harga: 10000, banyak: 4 },
+  ];
+
+  tas = [
+    { id: 1, tanggal: '2024-01-20', total: 0, kasir: 'Happy Shoping' },
+  ];
+
+  tas_barang = [
+    { id: 1, idtas: 1, idbarang: 1, nama: 'Coklat', harga: 15000, banyak: 1, jumlah: 15000 },
+  ];
+
+  input = ['id', 'nama', 'harga', 'banyak'];
+  out = `<form name='frm'>`;
+
+  input.forEach(function myFunction(item, index) {
+    out += `${item}  <input name="${item}"> <br>`;
+  });
+
+  out += `</form>`;
+  out += `<button onclick="tambahBarang()"> Tambah Barang </button>`;
+  document.getElementById('input').innerHTML = out;
+
+  function init() {
+    out = ``;
+
+    barang.forEach(function myFunction(item, index) {
+      out += `${item.id} | ${item.banyak} | ${item.nama} | ${item.harga} <button onclick="add(${item.id})"> add </button> <br/> `;
+    });
+    document.getElementById('barang').innerHTML = out;
+
+    out = ` <button onclick="buatTasBaru()"> Buat Tas Baru </button> <button onclick="cetak()"> Cetak</button><br>`;
+    tas.forEach(function myFunction(item, index) {
+      out += 'Tanggal:' + item.tanggal + " <br> ";
+      out += 'Kasir:' + item.kasir + " <br> ";
+      out += 'Kode:' + item.id + " <br> ";
+      out += 'Total:' + item.total + " <br> ";
+    });
+
+    document.getElementById('tas').innerHTML = out;
+
+    out = `<table>`;
+  out += `<tr>
+            <td>Id Tas</td>
+            <td>Id Barang</td>
+            <td>Banyak Barang</td>
+            <td>Nama Barang</td>
+            <td>Harga Barang</td>
+            <td>Jumlah</td>
+            <td>Aksi</td>
+          </tr>`;
+
+  tas_barang.forEach(function myFunction(item, index) {
+    out += `<tr>
+              <td>${item.idtas}</td>
+              <td>${item.idbarang}</td>
+              <td>${item.banyak}</td>
+              <td>${item.nama}</td>
+              <td>${item.harga}</td>
+              <td>${item.jumlah}</td>
+              <td>
+                <button onclick="edit(${index})"> Edit </button>
+                <button onclick="deleteBarang(${index})"> Delete </button>
+              </td>
+            </tr>`;
+  });
+
+  out += `</table>`;
+  document.getElementById('tas_item').innerHTML = out;
+}
+
+  init();
+
+  function add(i) {
+  const item = barang.find(e => e.id === i);
+
+  if (item) {
+    const newItem = {
+      id: tas_barang.length + 1,
+      idtas: tas[0].id,
+      idbarang: item.id,
+      nama: item.nama,
+      harga: item.harga,
+      banyak: item.banyak,
+      jumlah: item.harga * item.banyak,
+    };
+    tas_barang.push(newItem);
+    updateTotal();
+    init();
+  } else {
+    console.error('Item not found');
+  }
+}
+
+  function edit(i) {
+    const item = tas_barang[i];
+
+    frm.elements[0].value = item.idbarang;
+    frm.elements[1].value = item.nama;
+    frm.elements[2].value = item.harga;
+    frm.elements[3].value = item.banyak;
+  }
+
+  function deleteBarang(i) {
+    tas_barang.splice(i, 1);
+    updateTotal();
+    init();
+  }
+
+  function updateTotal() {
+  const newTotal = tas_barang.reduce((total, item) => total + item.jumlah, 0);
+  tas[0].total = newTotal;
+}
+
+  function tambahBarang() {
+    const newItem = {
+      id: tas_barang.length + 1,
+      idtas: tas[0].id,
+      idbarang: frm.elements[0].value,
+      nama: frm.elements[1].value,
+      harga: frm.elements[2].value,
+      banyak: frm.elements[3].value,
+      jumlah: frm.elements[2].value * frm.elements[3].value,
+    };
+
+    tas_barang.push(newItem);
+    updateTotal();
+    init();
+  }
+
+  function buatTasBaru() {
+    const newTasId = tas.length > 0 ? tas[tas.length - 1].id + 1 : 1;
+
+  tas.push({
+    id: newTasId,
+    tanggal: getCurrentDate(),
+    total: 0,
+    kasir: 'Happy Shoping',
+  });
+
+  tas_barang = [];
+  updateTotal();
+  init();
+}
+
+  function getCurrentDate() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function cetak() {
+    window.print();
+  }
+
+</script>
